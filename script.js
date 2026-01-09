@@ -1,62 +1,38 @@
-// Simulated sensor data
-// 0 = available, 1 = occupied
-let zoneA = [1, 0, 1, 0];
-let zoneB = [0, 0, 1, 1];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Parking Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
-let visits = 0;
+<body>
 
-function createSlots(zoneId, data, zoneName) {
-  const zoneDiv = document.getElementById(zoneId);
-  zoneDiv.innerHTML = "";
+  <h1>🚗 Smart Parking Availability</h1>
 
-  data.forEach((slot, index) => {
-    const div = document.createElement("div");
-    div.className = "slot " + (slot ? "occupied" : "available");
-    div.innerText = "Slot " + (index + 1);
+  <!-- ZONE A -->
+  <div class="zone">
+    <h2>Zone A</h2>
+    <div class="slots" id="zoneA"></div>
+  </div>
 
-    if (slot === 0) {
-      div.onclick = () => showNavigation(zoneName, index + 1);
-    }
+  <!-- ZONE B -->
+  <div class="zone">
+    <h2>Zone B</h2>
+    <div class="slots" id="zoneB"></div>
+  </div>
 
-    zoneDiv.appendChild(div);
-  });
-}
-function showNavigation(zone, slot) {
-  alert(
-    "Navigate to:\n" +
-    "Zone: " + zone + "\n" +
-    "Slot: " + slot + "\n\n" +
-    "Directions:\n" +
-    "→ Enter parking\n" +
-    "→ Turn left\n" +
-    "→ Go straight to " + zone +
-    "\n→ Slot " + slot
-  );
-}
+  <!-- USER SCORE -->
+  <div class="score">
+    <h2>🎯 User Score</h2>
+    <p>Visits: <span id="points">0</span></p>
+    <p>Discount: <span id="discount">0%</span></p>
+    <button onclick="addVisit()">Simulate Visit</button>
+  </div>
 
-  data.forEach((slot, index) => {
-    const div = document.createElement("div");
-    div.className = "slot " + (slot ? "occupied" : "available");
-    div.innerText = "Slot " + (index + 1);
-    zoneDiv.appendChild(div);
-  });
-}
+  <!-- NAVIGATION -->
+  <button class="nav-btn" onclick="navigate()">📍 Navigate to Slot</button>
 
-function updateScore() {
-  visits++;
-  document.getElementById("points").innerText = visits;
-  document.getElementById("discount").innerText =
-    Math.floor(visits / 10) * 10 + "%";
-}
-
-// Navigation (Google Maps)
-function navigate() {
-  window.open("https://www.google.com/maps?q=parking+near+me");
-}
-
-// Initial load
-createSlots("zoneA", zoneA,"A");
-createSlots("zoneB", zoneB,"B");
-
-// Simulate visit
-updateScore();
+  <script src="script.js"></script>
+</body>
+</html>

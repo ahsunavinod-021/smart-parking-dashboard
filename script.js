@@ -1,0 +1,37 @@
+// Simulated sensor data
+// 0 = available, 1 = occupied
+let zoneA = [1, 0, 1, 0];
+let zoneB = [0, 0, 1, 1];
+
+let visits = 0;
+
+function createSlots(zoneId, data) {
+  const zoneDiv = document.getElementById(zoneId);
+  zoneDiv.innerHTML = "";
+
+  data.forEach((slot, index) => {
+    const div = document.createElement("div");
+    div.className = "slot " + (slot ? "occupied" : "available");
+    div.innerText = "Slot " + (index + 1);
+    zoneDiv.appendChild(div);
+  });
+}
+
+function updateScore() {
+  visits++;
+  document.getElementById("points").innerText = visits;
+  document.getElementById("discount").innerText =
+    Math.floor(visits / 10) * 10 + "%";
+}
+
+// Navigation (Google Maps)
+function navigate() {
+  window.open("https://www.google.com/maps?q=parking+near+me");
+}
+
+// Initial load
+createSlots("zoneA", zoneA);
+createSlots("zoneB", zoneB);
+
+// Simulate visit
+updateScore();

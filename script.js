@@ -1,38 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Smart Parking Dashboard</title>
-  <link rel="stylesheet" href="style.css">
-</head>
+// ===============================
+// SLOT DATA (0 = FREE, 1 = OCCUPIED)
+// ===============================
+let zones = {
+  zoneA: [0, 0, 0, 0],
+  zoneB: [0, 0, 0, 0]
+};
 
-<body>
+let visits = 0;
 
-  <h1>🚗 Smart Parking Availability</h1>
+// ===============================
+// RENDER SLOTS
+// ===============================
+function renderZones() {
+  Object.keys(zones).forEach(zoneId => {
+    const container = document.getElementById(zoneId);
+    container.innerHTML = "";
 
-  <!-- ZONE A -->
-  <div class="zone">
-    <h2>Zone A</h2>
-    <div class="slots" id="zoneA"></div>
-  </div>
+    zones[zoneId].forEach((status, index) => {
+      const slot = document.createElement("div");
+      slot.classList.add("slot");
+      slot.classList.add(status === 1 ? "occupied" : "free");
+      slot.innerText = `Slot ${index + 1}`;
+      container.appendChild(slot);
+    });
+  });
+}
 
-  <!-- ZONE B -->
-  <div class="zone">
-    <h2>Zone B</h2>
-    <div class="slots" id="zoneB"></div>
-  </div>
+// ===============================
+// USER SCORE SYSTEM
+// ===============================
+function addVisit() {
+  visits++;
+  document.getElementById("points").innerText = visits;
+  document.getElementById("discount").innerText =
+    Math.min(Math.floor(visits / 10) * 10, 100) + "%";
+}
 
-  <!-- USER SCORE -->
-  <div class="score">
-    <h2>🎯 User Score</h2>
-    <p>Visits: <span id="points">0</span></p>
-    <p>Discount: <span id="discount">0%</span></p>
-    <button onclick="addVisit()">Simulate Visit</button>
-  </div>
+// ===============================
+// INTERNAL PARKING NAVIGATION
+// ===============================
+function navigate() {
+  let found = false;
 
-  <!-- NAVIGATION -->
-  <button class="nav-btn" onclick="navigate()">📍 Navigate to Slot</button>
+  Object.keys(zones).forEach(zone => {
+    zones[zone].forEach((slot, index) => {
+      if (slot === 0 && !found) {
+        alert(`Navigate to ${zone.toUpperCase()} - Slot ${index + 1}`);
+        found = true;
+      }
+    });
+  });
 
-  <script src="script.js"></script>
-</body>
-</html>
+  if (!found) {
+    alert("Parking Full ❌");
+  }
+}
+
+// ===============================
+// DEMO SENSOR SIMULATION
+// (Replace this with Arduino data later)
+// ===============================
+setInterval(() => {
+  zones.zoneA = zones.zoneA.map(() => Math.random() > 0.5 ? 1 : 0);
+  zones.zoneB = zones.zoneB.map(() => Math.random() > 0.5 ? 1 : 0);
+  renderZones();
+}, 3000);
+
+// Initial Load
+renderZones();

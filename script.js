@@ -5,9 +5,34 @@ let zoneB = [0, 0, 1, 1];
 
 let visits = 0;
 
-function createSlots(zoneId, data) {
+function createSlots(zoneId, data, zoneName) {
   const zoneDiv = document.getElementById(zoneId);
   zoneDiv.innerHTML = "";
+
+  data.forEach((slot, index) => {
+    const div = document.createElement("div");
+    div.className = "slot " + (slot ? "occupied" : "available");
+    div.innerText = "Slot " + (index + 1);
+
+    if (slot === 0) {
+      div.onclick = () => showNavigation(zoneName, index + 1);
+    }
+
+    zoneDiv.appendChild(div);
+  });
+}
+function showNavigation(zone, slot) {
+  alert(
+    "Navigate to:\n" +
+    "Zone: " + zone + "\n" +
+    "Slot: " + slot + "\n\n" +
+    "Directions:\n" +
+    "→ Enter parking\n" +
+    "→ Turn left\n" +
+    "→ Go straight to " + zone +
+    "\n→ Slot " + slot
+  );
+}
 
   data.forEach((slot, index) => {
     const div = document.createElement("div");
@@ -30,8 +55,8 @@ function navigate() {
 }
 
 // Initial load
-createSlots("zoneA", zoneA);
-createSlots("zoneB", zoneB);
+createSlots("zoneA", zoneA,"A");
+createSlots("zoneB", zoneB,"B");
 
 // Simulate visit
 updateScore();

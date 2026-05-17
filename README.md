@@ -1,70 +1,62 @@
-![header](https://capsule-render.vercel.app/api?type=waving&color=0:0d1421,50:00d4aa,100:0d1421&height=140&section=header&text=Smart%20Parking%20Dashboard&fontSize=28&fontColor=ffffff&fontAlignY=55&animation=fadeIn)
+![header](https://capsule-render.vercel.app/api?type=slice&color=0:1a0a00,50:ff6b35,100:1a0a00&height=160&text=Smart%20Parking%20Dashboard&fontSize=26&fontColor=ffffff&fontAlignY=70&animation=fadeIn&rotate=0)
 
 <div align="center">
 
-*A real-time parking lot availability dashboard with live sensor simulation.*
+**a real-time parking lot dashboard · built for the browser · ready for IoT**
 
-[![HTML](https://img.shields.io/badge/HTML-0d1421?style=for-the-badge&logo=html5&logoColor=e34f26)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![CSS](https://img.shields.io/badge/CSS-0d1421?style=for-the-badge&logo=css3&logoColor=1572b6)](https://developer.mozilla.org/en-US/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/JavaScript-0d1421?style=for-the-badge&logo=javascript&logoColor=f7df1e)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+<br/>
+
+![HTML](https://img.shields.io/badge/HTML5-ff6b35?style=flat-square&logoColor=white&logo=html5)
+![CSS](https://img.shields.io/badge/CSS3-ff6b35?style=flat-square&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-ff6b35?style=flat-square&logo=javascript&logoColor=white)
 
 </div>
 
----
+<br/>
 
-## what it does
+> 🅿️ *Parking management is a real problem on campuses. This dashboard gives drivers instant visibility into slot availability — no app download required.*
 
-A browser-based dashboard that simulates a smart parking lot management system. It shows real-time slot availability across two zones, lets you toggle slots manually, navigate to the nearest free slot, and tracks user visits with a discount reward system.
+<br/>
 
-Built as a frontend prototype — designed to later connect to real IoT sensors (e.g. Arduino + IR sensors).
+### 🔶 &nbsp;what it does
 
----
+A browser-based dashboard simulating a smart parking lot. Shows live slot availability across two zones, lets you toggle slots manually, navigate to the nearest free spot, and rewards frequent visitors with discounts.
 
-## features
+Designed as a frontend prototype — built to eventually sit on top of real IoT sensor data from Arduino + IR sensors.
 
-- 🟢 **Live slot grid** — Zone A & Zone B with colour-coded free/occupied status
-- 👆 **Click to toggle** — manually mark any slot as free or occupied
-- 📊 **Stats bar** — live count of free slots, occupied slots, and availability %
-- 📍 **Smart navigation** — finds and highlights the nearest available slot
-- 🔄 **Auto-simulation** — mimics IoT sensor updates every 3 seconds (toggle on/off)
-- 🎯 **User score system** — tracks visits and unlocks progressive discounts
-- 🪵 **Activity log** — timestamped feed of every slot change and system event
+<br/>
 
----
+### 🔶 &nbsp;features
 
-## tech stack
-
-| Layer | Tech |
+| | |
 |---|---|
-| Structure | HTML5 |
-| Styling | CSS3 (custom properties, animations, grid layout) |
-| Logic | Vanilla JavaScript |
-| Fonts | Space Mono · DM Sans (Google Fonts) |
+| 🟢 Live slot grid | Zone A & Zone B with colour-coded free/occupied status |
+| 👆 Click to toggle | Manually mark any slot as free or occupied |
+| 📊 Stats bar | Real-time free count, occupied count & availability % |
+| 📍 Smart navigation | Finds and highlights the nearest free slot instantly |
+| 🔄 Auto-simulation | Mimics IoT sensor updates every 3s (toggle on/off) |
+| 🎯 Reward system | Tracks visits and unlocks progressive discounts |
+| 🪵 Activity log | Timestamped feed of every slot change and system event |
 
----
+<br/>
 
-## run locally
+### 🔶 &nbsp;run it locally
 
-No dependencies, no build step — just open the file:
+No install. No build step. Just:
 
 ```bash
-# clone the repo
 git clone https://github.com/ahsunavinod-021/smart-parking-dashboard.git
-
-# open in browser
-open index.html
 ```
 
-Or just double-click `index.html` in your file explorer.
+Then double-click `index.html` — opens straight in your browser.
 
----
+<br/>
 
-## how it works
+### 🔶 &nbsp;how the simulation works
 
-Slot data is stored as a simple array per zone (`0 = free, 1 = occupied`). The simulation runs a `setInterval` every 3 seconds that randomly flips slot states — mimicking what a real IR sensor feed would push to the frontend.
+Slot states are stored as arrays (`0 = free, 1 = occupied`). A `setInterval` flips them randomly every 3 seconds — mimicking a live sensor feed:
 
 ```js
-// sensor simulation (replace with real Arduino data later)
 setInterval(() => {
   zones.zoneA = zones.zoneA.map(() => Math.random() > 0.5 ? 1 : 0);
   zones.zoneB = zones.zoneB.map(() => Math.random() > 0.5 ? 1 : 0);
@@ -72,23 +64,17 @@ setInterval(() => {
 }, 3000);
 ```
 
-The navigation logic scans zones in order and returns the first free slot found.
+Replace this block with real Arduino/WebSocket data to go fully live.
 
----
+<br/>
 
-## roadmap
+### 🔶 &nbsp;what's next
 
-- [ ] Connect to Arduino via Serial API or WebSockets
-- [ ] Add slot reservation with timer
-- [ ] Multi-floor support
-- [ ] Backend integration for persistent user scores
+- [ ] Arduino integration via Serial API or WebSockets
+- [ ] Slot reservation with countdown timer
+- [ ] Multi-floor / multi-zone support
+- [ ] Backend for persistent user scores
 
----
+<br/>
 
-## why i built this
-
-Parking management is a real problem on campuses and in urban areas. This project explores how a simple frontend interface could sit on top of IoT sensor data to give drivers instant visibility into slot availability — no app download required.
-
----
-
-![footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1421,50:00d4aa,100:0d1421&height=80&section=footer&animation=fadeIn)
+![footer](https://capsule-render.vercel.app/api?type=slice&color=0:1a0a00,50:ff6b35,100:1a0a00&height=100&section=footer&animation=fadeIn)

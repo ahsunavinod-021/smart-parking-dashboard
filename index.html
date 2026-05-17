@@ -1,38 +1,566 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Smart Parking Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #070d18;
+      --surface: #0b1220;
+      --card: #0d1628;
+      --border: #1b2d45;
+      --teal: #00d4aa;
+      --teal-dim: #00d4aa22;
+      --teal-mid: #00d4aa55;
+      --free: #00d4aa;
+      --free-bg: #001a14;
+      --free-border: #00d4aa44;
+      --occupied: #ff5c5c;
+      --occupied-bg: #1a0000;
+      --occupied-border: #ff5c5c44;
+      --text: #c8dff0;
+      --muted: #4a7fa5;
+      --dim: #1e3248;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* grid bg */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,170,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,170,0.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+    /* HEADER */
+    header {
+      text-align: center;
+      padding: 48px 0 36px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #001a14;
+      border: 1px solid var(--teal-dim);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #00d4aa88;
+      letter-spacing: 0.1em;
+      margin-bottom: 18px;
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 6px var(--teal);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--teal); }
+      50% { opacity: 0.5; box-shadow: 0 0 12px var(--teal); }
+    }
+    h1 {
+      font-family: var(--mono);
+      font-size: clamp(22px, 4vw, 36px);
+      color: #e8f4ff;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    h1 span { color: var(--teal); }
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: var(--teal-mid); }
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      letter-spacing: 0.05em;
+    }
+    .stat-free .stat-value { color: var(--free); }
+    .stat-occupied .stat-value { color: var(--occupied); }
+    .stat-total .stat-value { color: #e8f4ff; }
+
+    /* ZONES */
+    .zones-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 560px) { .zones-grid { grid-template-columns: 1fr; } }
+
+    .zone-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      transition: border-color 0.2s;
+    }
+    .zone-card:hover { border-color: var(--teal-mid); }
+    .zone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .zone-title {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--teal);
+      letter-spacing: 0.08em;
+    }
+    .zone-count {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .slots {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .slot {
+      height: 64px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid;
+      transition: all 0.2s cubic-bezier(0.22,1,0.36,1);
+      user-select: none;
+      gap: 4px;
+    }
+    .slot:hover { transform: scale(1.04); }
+    .slot:active { transform: scale(0.97); }
+    .slot.free {
+      background: var(--free-bg);
+      border-color: var(--free-border);
+      color: var(--free);
+    }
+    .slot.free:hover { border-color: var(--free); box-shadow: 0 0 12px #00d4aa22; }
+    .slot.occupied {
+      background: var(--occupied-bg);
+      border-color: var(--occupied-border);
+      color: var(--occupied);
+    }
+    .slot.occupied:hover { border-color: var(--occupied); box-shadow: 0 0 12px #ff5c5c22; }
+    .slot-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .slot-status {
+      font-size: 9px;
+      font-family: var(--mono);
+      opacity: 0.7;
+      letter-spacing: 0.05em;
+    }
+
+    /* BOTTOM PANELS */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    @media (max-width: 560px) { .bottom-grid { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+    }
+    .panel-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--teal);
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+
+    /* score */
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .score-key { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+    .score-val { font-size: 20px; font-family: var(--mono); font-weight: 700; color: #e8f4ff; }
+    .discount-val { color: var(--teal); }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--dim);
+      border-radius: 3px;
+      margin: 12px 0 16px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--teal);
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    /* buttons */
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 8px;
+    }
+    .btn-teal {
+      background: var(--free-bg);
+      border-color: var(--free-border);
+      color: var(--free);
+    }
+    .btn-teal:hover { background: #00d4aa18; border-color: var(--free); }
+    .btn-blue {
+      background: #001020;
+      border-color: #1a4a8a44;
+      color: #64b5f6;
+    }
+    .btn-blue:hover { background: #64b5f618; border-color: #64b5f6; }
+
+    /* nav result */
+    .nav-result {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      border: 1px solid;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s;
+    }
+    .nav-result.success { background: var(--free-bg); border-color: var(--free-border); color: var(--free); }
+    .nav-result.error { background: var(--occupied-bg); border-color: var(--occupied-border); color: var(--occupied); }
+    .nav-result.empty { background: transparent; border-color: var(--dim); color: var(--dim); }
+
+    /* sim toggle */
+    .sim-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .toggle {
+      position: relative;
+      width: 38px; height: 20px;
+      cursor: pointer;
+    }
+    .toggle input { display: none; }
+    .toggle-track {
+      width: 100%; height: 100%;
+      background: var(--dim);
+      border-radius: 10px;
+      transition: background 0.2s;
+      border: 1px solid var(--border);
+    }
+    .toggle input:checked + .toggle-track { background: var(--free-bg); border-color: var(--free-border); }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 14px; height: 14px;
+      background: var(--muted);
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+    .toggle input:checked ~ .toggle-thumb { left: 21px; background: var(--teal); }
+
+    .sim-label { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+    /* log */
+    .log {
+      background: var(--bg);
+      border: 1px solid var(--dim);
+      border-radius: 8px;
+      padding: 10px 12px;
+      height: 90px;
+      overflow-y: auto;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+    .log::-webkit-scrollbar { width: 4px; }
+    .log::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+    .log-entry { color: var(--teal); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .zone-card, .panel, .stat-card {
+      animation: slideIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .zone-card:nth-child(1) { animation-delay: 0.2s; }
+    .zone-card:nth-child(2) { animation-delay: 0.25s; }
+  </style>
 </head>
-
 <body>
+<div class="wrapper">
 
-  <h1>🚗 Smart Parking Availability</h1>
+  <!-- HEADER -->
+  <header>
+    <div class="badge">
+      <span class="badge-dot"></span>
+      LIVE SENSOR FEED
+    </div>
+    <h1>Smart <span>Parking</span> Dashboard</h1>
+    <p class="subtitle">click any slot to toggle · auto-simulation every 3s</p>
+  </header>
 
-  <!-- ZONE A -->
-  <div class="zone">
-    <h2>Zone A</h2>
-    <div class="slots" id="zoneA"></div>
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-card stat-free">
+      <div class="stat-value" id="statFree">8</div>
+      <div class="stat-label">FREE SLOTS</div>
+    </div>
+    <div class="stat-card stat-occupied">
+      <div class="stat-value" id="statOccupied">0</div>
+      <div class="stat-label">OCCUPIED</div>
+    </div>
+    <div class="stat-card stat-total">
+      <div class="stat-value" id="statPct">100%</div>
+      <div class="stat-label">AVAILABILITY</div>
+    </div>
   </div>
 
-  <!-- ZONE B -->
-  <div class="zone">
-    <h2>Zone B</h2>
-    <div class="slots" id="zoneB"></div>
+  <!-- ZONES -->
+  <div class="zones-grid">
+    <div class="zone-card">
+      <div class="zone-header">
+        <span class="zone-title">// ZONE A</span>
+        <span class="zone-count" id="zoneACount">4 free</span>
+      </div>
+      <div class="slots" id="zoneA"></div>
+    </div>
+    <div class="zone-card">
+      <div class="zone-header">
+        <span class="zone-title">// ZONE B</span>
+        <span class="zone-count" id="zoneBCount">4 free</span>
+      </div>
+      <div class="slots" id="zoneB"></div>
+    </div>
   </div>
 
-  <!-- USER SCORE -->
-  <div class="score">
-    <h2>🎯 User Score</h2>
-    <p>Visits: <span id="points">0</span></p>
-    <p>Discount: <span id="discount">0%</span></p>
-    <button onclick="addVisit()">Simulate Visit</button>
+  <!-- BOTTOM PANELS -->
+  <div class="bottom-grid">
+
+    <!-- SCORE PANEL -->
+    <div class="panel">
+      <div class="panel-title">USER SCORE</div>
+      <div class="score-row">
+        <span class="score-key">VISITS</span>
+        <span class="score-val" id="points">0</span>
+      </div>
+      <div class="score-row">
+        <span class="score-key">DISCOUNT</span>
+        <span class="score-val discount-val" id="discount">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <button class="btn btn-teal" onclick="addVisit()">+ SIMULATE VISIT</button>
+    </div>
+
+    <!-- NAVIGATION PANEL -->
+    <div class="panel">
+      <div class="panel-title">NAVIGATION</div>
+
+      <div class="sim-row">
+        <span class="sim-label">AUTO SIMULATION</span>
+        <label class="toggle">
+          <input type="checkbox" id="simToggle" checked onchange="toggleSim(this)"/>
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+
+      <button class="btn btn-blue" onclick="navigate()">📍 FIND NEAREST SLOT</button>
+
+      <div class="nav-result empty" id="navResult">— awaiting request</div>
+
+      <div class="log" id="log">
+        <div>system initialised ✓</div>
+      </div>
+    </div>
+
   </div>
+</div>
 
-  <!-- NAVIGATION -->
-  <button class="nav-btn" onclick="navigate()">📍 Navigate to Slot</button>
+<script>
+  let zones = { zoneA: [0,0,0,0], zoneB: [0,0,0,0] };
+  let visits = 0;
+  let simInterval = null;
 
-  <script src="script.js"></script>
+  function renderZones() {
+    ['zoneA','zoneB'].forEach(zoneId => {
+      const container = document.getElementById(zoneId);
+      container.innerHTML = '';
+      zones[zoneId].forEach((status, i) => {
+        const slot = document.createElement('div');
+        slot.className = 'slot ' + (status === 1 ? 'occupied' : 'free');
+        slot.innerHTML = `
+          <span class="slot-label">SLOT ${i+1}</span>
+          <span class="slot-status">${status === 1 ? 'OCCUPIED' : 'FREE'}</span>
+        `;
+        slot.onclick = () => toggleSlot(zoneId, i);
+        container.appendChild(slot);
+      });
+      const free = zones[zoneId].filter(s => s === 0).length;
+      document.getElementById(zoneId + 'Count').textContent = `${free} free`;
+    });
+    updateStats();
+  }
+
+  function toggleSlot(zoneId, index) {
+    zones[zoneId][index] = zones[zoneId][index] === 0 ? 1 : 0;
+    const label = `${zoneId.toUpperCase()} Slot ${index+1}`;
+    const state = zones[zoneId][index] === 1 ? 'OCCUPIED' : 'FREE';
+    addLog(`${label} → ${state}`);
+    renderZones();
+  }
+
+  function updateStats() {
+    const allSlots = [...zones.zoneA, ...zones.zoneB];
+    const free = allSlots.filter(s => s === 0).length;
+    const occupied = allSlots.filter(s => s === 1).length;
+    const pct = Math.round((free / allSlots.length) * 100);
+    document.getElementById('statFree').textContent = free;
+    document.getElementById('statOccupied').textContent = occupied;
+    document.getElementById('statPct').textContent = pct + '%';
+  }
+
+  function addVisit() {
+    visits++;
+    const discount = Math.min(Math.floor(visits / 3) * 10, 100);
+    document.getElementById('points').textContent = visits;
+    document.getElementById('discount').textContent = discount + '%';
+    document.getElementById('progressFill').style.width = Math.min((visits % 3) / 3 * 100, 100) + '%';
+    addLog(`Visit #${visits} recorded · discount ${discount}%`);
+  }
+
+  function navigate() {
+    const result = document.getElementById('navResult');
+    let found = false;
+    for (const zone of Object.keys(zones)) {
+      for (let i = 0; i < zones[zone].length; i++) {
+        if (zones[zone][i] === 0 && !found) {
+          result.textContent = `→ ${zone.toUpperCase()} · Slot ${i+1}`;
+          result.className = 'nav-result success';
+          addLog(`Navigating → ${zone.toUpperCase()} Slot ${i+1}`);
+          found = true;
+        }
+      }
+    }
+    if (!found) {
+      result.textContent = '✗ Parking full — no slots available';
+      result.className = 'nav-result error';
+      addLog('Navigation failed — lot full');
+    }
+  }
+
+  function addLog(msg) {
+    const log = document.getElementById('log');
+    const entry = document.createElement('div');
+    const time = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    entry.className = 'log-entry';
+    entry.textContent = `[${time}] ${msg}`;
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function startSim() {
+    simInterval = setInterval(() => {
+      zones.zoneA = zones.zoneA.map(() => Math.random() > 0.5 ? 1 : 0);
+      zones.zoneB = zones.zoneB.map(() => Math.random() > 0.5 ? 1 : 0);
+      addLog('sensor update received');
+      renderZones();
+    }, 3000);
+  }
+
+  function toggleSim(checkbox) {
+    if (checkbox.checked) {
+      startSim();
+      addLog('auto-simulation ON');
+    } else {
+      clearInterval(simInterval);
+      addLog('auto-simulation OFF');
+    }
+  }
+
+  renderZones();
+  startSim();
+</script>
 </body>
 </html>
